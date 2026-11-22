@@ -1,0 +1,43 @@
+# StudyHelper: один сервис. Снаружи его видит только прокси Caddy на этом же сервере (127.0.0.1:3000).
+# Настройки читаются из файла .env (см. .env.production.example).
+services:
+  app:
+    build:
+      context: .
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-bookworm-slim}
+    image: studyhelper:latest
+    container_name: studyhelper
+    restart: unless-stopped
+    # Нужен ровно один экземпляр: ограничения частоты запросов хранятся в памяти процесса
+    init: true
+    env_file: .env
+    environment:
+      # Путь внутри контейнера задан здесь, чтобы его нельзя было испортить правкой .env
+      DATABASE_PATH: /data/studyhelper.db
+    ports:
+      # Только локальный адрес сервера: напрямую из интернета порт 3000 не виден
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - studyhelper-data:/data
+    healthcheck:
+      # В образе нет curl, поэтому проверяем средствами Node: страница входа должна отвечать 200
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  studyhelper-data:
+    # Имя задано явно: том не зависит от названия папки проекта
+    name: studyhelper-data

@@ -1,0 +1,24 @@
+# Caddy: принимает HTTPS из интернета и передаёт запросы приложению на 127.0.0.1:3000.
+# Сертификат Let's Encrypt Caddy получает и продлевает сам (нужны открытые порты 80 и 443
+# и DNS-запись домена, указывающая на этот сервер).
+#
+# Замените studyhelper.example.ru на свой домен, затем:
+#   sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+
+studyhelper.example.ru {
+	encode zstd gzip
+
+	reverse_proxy 127.0.0.1:3000 {
+		# Приложению нужен исходный адрес сайта: проверка Origin (защита от CSRF) сравнивает его
+		# с X-Forwarded-Host, а QR-код в справке строится по Host / X-Forwarded-Proto.
+		header_up Host {host}
+		header_up X-Forwarded-Host {host}
+		header_up X-Forwarded-Proto {scheme}
+
+		# Настоящий IP клиента для ограничения попыток входа. Заголовок ПЕРЕЗАПИСЫВАЕТСЯ,
+		# значение, присланное из интернета, отбрасывается (иначе лимит можно обойти подделкой).
+		header_up X-Forwarded-For {remote_host}
+	}
+}

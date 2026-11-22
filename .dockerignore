@@ -1,0 +1,15 @@
+# Не попадает в образ: зависимости ставятся внутри, секреты и данные лежат только на сервере
+node_modules
+.next
+data
+backups
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+*.log
+*.tsbuildinfo
+Dockerfile
+docker-compose.yml
+.dockerignore

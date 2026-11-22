@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  /* Вторичный текст: контраст не ниже 4,5:1 на белом и на светло-сером фоне (WCAG AA) */
+  --color-slate-400: #5b6b82;
+  --color-slate-500: #4f5d73;
+
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --color-brand-50: #eef3ff;
+  --color-brand-100: #dfe8ff;
+  --color-brand-200: #c0d1ff;
+  --color-brand-300: #94b0ff;
+  --color-brand-400: #5f84fb;
+  --color-brand-500: #3a5ff2;
+  --color-brand-600: #2744d6;
+  --color-brand-700: #2237ab;
+  --color-brand-800: #1f3187;
+  --color-brand-900: #1d2d6b;
+
+  --animate-slide-in: slide-in 0.22s ease-out;
+  --animate-fade-in: fade-in 0.18s ease-out;
+
+  @keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light;
+}
+
+body {
+  background: #f6f7fb;
+  color: #0f172a;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -64px;
+  z-index: 100;
+  border-radius: 10px;
+  background: var(--color-brand-700);
+  color: #fff;
+  padding: 12px 16px;
+  font-weight: 600;
+  transition: top 0.12s;
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Удаление уведомления: «×» на компьютере (мышь), на телефоне есть жест смахивания, а кнопка остаётся для скринридера и клавиатуры */
+.notif-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--color-slate-500);
+  background: transparent;
+}
+.notif-del:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-900);
+}
+@media (hover: hover) and (pointer: fine) {
+  .notif-del {
+    opacity: 0;
+  }
+  .notif-item:hover .notif-del,
+  .notif-item:focus-within .notif-del,
+  .notif-del:focus-visible {
+    opacity: 1;
+  }
+  .notif-body {
+    padding-right: 28px;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .notif-del:not(:focus-visible) {
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    clip-path: inset(50%);
+  }
+}

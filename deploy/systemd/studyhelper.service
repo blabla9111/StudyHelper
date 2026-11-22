@@ -1,0 +1,32 @@
+# ЗАПАСНОЙ вариант без Docker (Node 22 + systemd + Caddy). Подробности: deploy/DEPLOY.md, раздел «Без Docker».
+# Установка:
+#   sudo cp deploy/systemd/studyhelper.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now studyhelper
+[Unit]
+Description=StudyHelper (Next.js, SQLite)
+After=network.target
+
+[Service]
+Type=simple
+User=studyhelper
+Group=studyhelper
+WorkingDirectory=/opt/studyhelper/app
+# Настройки (DEMO_MODE, COOKIE_SECURE, PUBLIC_BASE_URL) лежат вне папки проекта, права 600
+EnvironmentFile=/opt/studyhelper/.env
+Environment=NODE_ENV=production
+Environment=TZ=Europe/Moscow
+Environment=DATABASE_PATH=/var/lib/studyhelper/studyhelper.db
+# Слушаем только локальный адрес: наружу сайт смотрит через Caddy. Ровно один экземпляр.
+ExecStart=/usr/bin/npm start -- -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=3
+
+# Ограничения: пишем только в базу и в кэш сборки
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/studyhelper /opt/studyhelper/app/.next
+
+[Install]
+WantedBy=multi-user.target
